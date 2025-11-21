@@ -45,7 +45,9 @@ async function run() {
       if(email){
         query.senderEmail= email;
       }
-      const cursor = parcelsCollections.find(query);
+
+      const options = {sort: {createdAt: -1}}
+      const cursor = parcelsCollections.find(query, options);
       const result = await cursor.toArray();
       res.send(result);
       
@@ -53,6 +55,8 @@ async function run() {
 
     app.post('/parcels', async(req, res)=>{
         const parcel = req.body;
+        // parcel created time 
+        parcel.createdAt = new Date();
         const result = await parcelsCollections.insertOne(parcel);
         res.send(result);
     })

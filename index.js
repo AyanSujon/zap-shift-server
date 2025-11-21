@@ -39,7 +39,16 @@ async function run() {
 
     // parcels api
     app.get('/parcels', async(req, res)=>{
-        
+      const query = {}
+      const {email} = req.query;
+      // filter by senderEmail
+      if(email){
+        query.senderEmail= email;
+      }
+      const cursor = parcelsCollections.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+      
     })
 
     app.post('/parcels', async(req, res)=>{

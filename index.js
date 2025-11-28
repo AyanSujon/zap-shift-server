@@ -187,6 +187,16 @@ app.patch(`/payment-success`, async(req, res)=> {
 
   const session = await stripe.checkout.sessions.retrieve(sessionId);
   console.log('session retrive: ', session);
+
+const transactionId = session.payment_intent;
+const query = {transactionId: transactionId}
+const paymentExist = await paymentCollection.findOne(query);
+console.log(paymentExist);
+if(paymentExist){
+  return res.send({message: 'Already exist ', transactionId, trackingId: paymentExist.trackingId})
+}
+
+
   const trackingId = generateTrackingId();
 
   if(session.payment_status === 'paid'){
@@ -208,7 +218,8 @@ app.patch(`/payment-success`, async(req, res)=> {
       parcelName: session.metadata.parcelName,
       transactionId: session.payment_intent,
       paymentStatus: session.payment_status,
-      paidAt: new Date()
+      paidAt: new Date(),
+      trackingId: trackingId,
     }
     if(session.payment_status === 'paid'){
       const resultPayment = await paymentCollection.insertOne(payment);
